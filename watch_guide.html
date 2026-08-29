@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>너울 워치 베타 가이드</title>
+<style>
+  :root {
+    --bg:#0e0d14; --card:#17151f; --card2:#1d1a28; --line:#2b2738;
+    --fg:#eceaf4; --dim:#9a94ad; --accent:#8b7cf6; --accent2:#b7aefe;
+    --good:#4ecf9a; --warn:#f0b45c;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+      "Noto Sans KR", "Malgun Gothic", sans-serif;
+    line-height:1.7; -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:640px; margin:0 auto; padding:0 20px 80px; }
+
+  /* 헤더 */
+  header { text-align:center; padding:56px 0 8px; }
+  .logo {
+    width:72px; height:72px; margin:0 auto 20px; border-radius:20px;
+    background:linear-gradient(160deg,#241f3a,#161225);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 32px rgba(139,124,246,.25);
+  }
+  .logo svg { width:44px; height:44px; }
+  h1 { font-size:1.6rem; margin:0 0 6px; letter-spacing:-.02em; }
+  .sub { color:var(--dim); font-size:.95rem; margin:0 0 40px; }
+
+  /* 섹션 제목 */
+  h2 {
+    font-size:1.15rem; margin:52px 0 16px; display:flex;
+    align-items:center; gap:10px; letter-spacing:-.01em;
+  }
+  h2 .num {
+    flex:none; width:30px; height:30px; border-radius:50%;
+    background:var(--accent); color:#0e0d14; font-size:.95rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* 카드 */
+  .card {
+    background:var(--card); border:1px solid var(--line);
+    border-radius:16px; padding:20px 20px; margin:0 0 12px;
+  }
+  .card p:first-child { margin-top:0; }
+  .card p:last-child { margin-bottom:0; }
+
+  /* 스텝 리스트 */
+  ol.steps { list-style:none; margin:0; padding:0; counter-reset:step; }
+  ol.steps li {
+    counter-increment:step; position:relative; padding:0 0 18px 44px;
+  }
+  ol.steps li:last-child { padding-bottom:0; }
+  ol.steps li::before {
+    content:counter(step); position:absolute; left:0; top:1px;
+    width:28px; height:28px; border-radius:50%;
+    background:var(--card2); border:1px solid var(--accent);
+    color:var(--accent2); font-size:.9rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  ol.steps li + li::after {
+    content:""; position:absolute; left:13.5px; top:-14px; height:12px;
+    border-left:1px dashed var(--line);
+  }
+
+  code, .url {
+    background:var(--card2); border:1px solid var(--line); border-radius:8px;
+    padding:2px 8px; font-size:.88em; color:var(--accent2);
+    font-family:ui-monospace, "SF Mono", Menlo, monospace;
+    word-break:break-all;
+  }
+
+  .tip {
+    background:var(--card2); border-left:3px solid var(--accent);
+    border-radius:0 10px 10px 0; padding:10px 14px; margin:10px 0 0;
+    font-size:.92rem; color:var(--dim);
+  }
+  .tip b { color:var(--fg); }
+
+  .callout {
+    border-radius:16px; padding:18px 20px; margin:0 0 12px;
+    border:1px solid var(--line); background:var(--card);
+  }
+  .callout.good { border-color:rgba(78,207,154,.4); }
+  .callout.warn { border-color:rgba(240,180,92,.45); }
+  .callout .tag {
+    display:inline-block; font-size:.8rem; font-weight:700;
+    padding:2px 10px; border-radius:999px; margin-bottom:8px;
+  }
+  .callout.good .tag { background:rgba(78,207,154,.15); color:var(--good); }
+  .callout.warn .tag { background:rgba(240,180,92,.15); color:var(--warn); }
+  .callout p { margin:0; }
+  .callout p + p { margin-top:8px; }
+
+  /* 문제 해결 */
+  details {
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; margin:0 0 10px; overflow:hidden;
+  }
+  summary {
+    cursor:pointer; padding:14px 18px; font-weight:600; font-size:.95rem;
+    list-style:none; display:flex; align-items:center; gap:8px;
+  }
+  summary::-webkit-details-marker { display:none; }
+  summary::before { content:"▸"; color:var(--accent); transition:transform .15s; }
+  details[open] summary::before { transform:rotate(90deg); }
+  details .body { padding:0 18px 16px; color:var(--dim); font-size:.93rem; }
+  details .body b { color:var(--fg); }
+
+  ul.ask { margin:8px 0 0; padding-left:20px; color:var(--dim); }
+  ul.ask li { margin:4px 0; }
+
+  .big { font-size:1.02rem; }
+  .em { color:var(--accent2); font-weight:700; }
+  .dim { color:var(--dim); }
+  strong { color:var(--fg); }
+
+  footer {
+    margin-top:64px; text-align:center; color:var(--dim); font-size:.85rem;
+    border-top:1px solid var(--line); padding-top:28px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="8" r="3" fill="#cfc7ff"/>
+      <path d="M8 20c5-6 11-6 16 0s11 6 16 0" stroke="#b7aefe" stroke-width="4" stroke-linecap="round"/>
+      <path d="M8 30c5-6 11-6 16 0s11 6 16 0" stroke="#8b7cf6" stroke-width="4" stroke-linecap="round"/>
+      <path d="M8 40c5-6 11-6 16 0s11 6 16 0" stroke="#6a5ae0" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1>너울 워치 베타 가이드</h1>
+  <p class="sub">설치부터 기록 확인까지, 이 한 페이지면 됩니다</p>
+</header>
+
+<!-- 1. 설치 -->
+<h2><span class="num">1</span>워치에 앱 설치하기</h2>
+
+<div class="callout warn">
+  <span class="tag">먼저 알아두세요</span>
+  <p>비공개 테스트라서 <strong>워치의 Play 스토어에서 검색해도 나오지
+  않습니다.</strong> 안 나오는 게 정상입니다. 폰에서 워치로 원격 설치합니다 —
+  폰만 있으면 됩니다.</p>
+</div>
+
+<div class="card">
+  <ol class="steps">
+    <li>폰에서 <strong>크롬</strong>(브라우저)을 엽니다</li>
+    <li>주소창에 입력:<br>
+      <span class="url">play.google.com/store/apps/details?id=com.toynine.neoul</span>
+      <div class="tip">Play 스토어 앱으로 넘어가려 하면 취소하고, 크롬 우상단
+      <b>⋮ → "데스크톱 사이트" 체크</b> 후 다시 열어주세요</div>
+    </li>
+    <li>우상단 프로필이 <strong>테스트 참여 신청한 구글 계정</strong>인지 확인</li>
+    <li>초록색 <span class="em">「다른 기기에 설치」</span> 버튼을 누릅니다</li>
+    <li>기기 목록에서 <strong>워치 선택</strong> → 「설치」</li>
+    <li><strong>기다립니다</strong> — 워치에 도착하기까지
+      <span class="em">1시간 이상</span> 걸릴 수 있습니다.
+      바로 안 떠도 실패가 아닙니다</li>
+  </ol>
+</div>
+
+<details>
+  <summary>초록 버튼이 안 보여요</summary>
+  <div class="body">로그인된 계정이 테스트 참여 신청한 계정이 아닌 경우입니다.
+  화면 우상단 <b>프로필을 눌러 계정을 바꿔주세요.</b></div>
+</details>
+<details>
+  <summary>기기 목록에 워치가 안 떠요</summary>
+  <div class="body">워치가 폰과 <b>같은 구글 계정</b>으로 로그인돼 있는지
+  확인해 주세요 (워치 설정 → 계정). 같은 계정인데도 안 뜨면
+  <b>워치를 재부팅</b>하고 15분 뒤 다시 시도해 주세요.</div>
+</details>
+<details>
+  <summary>한참 기다려도 워치에 안 와요</summary>
+  <div class="body">워치를 재부팅하고 다시 기다려 주세요. 그래도 안 오면
+  오픈채팅방에 남겨주세요 — 같이 확인해 드리겠습니다.</div>
+</details>
+
+<!-- 2. 첫 설정 -->
+<h2><span class="num">2</span>처음 한 번만 하면 되는 것</h2>
+<div class="card">
+  <ol class="steps">
+    <li>워치에서 너울을 한 번 열고 <strong>위치·심박 권한</strong>을 허용</li>
+    <li>폰 앱 → 더보기 → <strong>워치 연결</strong>에서
+      "연결됨"이 보이면 준비 끝</li>
+  </ol>
+</div>
+
+<!-- 3. 서핑할 때 -->
+<h2><span class="num">3</span>서핑할 때</h2>
+<div class="card big">
+  <p>들어가기 전에 워치에서 너울을 열고
+  <span class="em">「세션 시작」</span>을 누르세요.</p>
+  <p class="dim">GPS를 잡는 데 1~2분 걸릴 수 있습니다. "스팟 확인 중"이 뜨는
+  동안 기다려 주세요. <strong>스팟 이름이 뜨면 기록이 시작된 겁니다.</strong></p>
+</div>
+<div class="callout good">
+  <span class="tag">워터락</span>
+  <p>세션을 시작한 뒤에는 <strong>워터락을 켜 주세요.</strong> 물속에서 화면이
+  잘못 눌려 기록이 끊기는 걸 막아줍니다. (워치 화면에도 안내가 뜹니다)</p>
+</div>
+<p class="dim" style="margin:12px 4px;">폰은 차에 두고 들어가셔도 됩니다.
+기록은 워치에 저장됩니다.</p>
+
+<!-- 4. 끝낼 때 -->
+<h2><span class="num">4</span>끝낼 때 ⭐ 꼭 봐주세요</h2>
+<div class="card">
+  <ol class="steps">
+    <li><strong>워터락을 풉니다</strong> — 용두(옆 버튼)를 길게 누르면 풀립니다</li>
+    <li>세션 화면에서 <span class="em">화면 맨 아래 가장자리를 한 번</span>
+      누르면 종료 확인이 뜹니다</li>
+    <li>한 번 더 누르면 끝납니다</li>
+  </ol>
+  <div class="tip"><b>버튼이 안 보이는 게 맞습니다</b> — 물속에서 잘못 눌리는
+  걸 막으려고 일부러 숨겨뒀습니다. 화면 아래쪽 끝을 눌러보세요.</div>
+</div>
+<div class="callout good">
+  <span class="tag">못 찾으셔도 괜찮습니다</span>
+  <p>기록은 안 없어집니다. 스팟에서 벗어나고 10분쯤 지나면 워치가 알아서
+  종료합니다. 물에서 나온 시점으로 잘라서 저장하니, 차 타고 이동한 구간은
+  기록에 안 들어갑니다.</p>
+</div>
+<div class="callout warn">
+  <span class="tag">이것만은 하지 마세요</span>
+  <p><strong>워치를 그냥 꺼버리지 말아주세요.</strong> 저장은 되지만 어떻게
+  끝났는지 알 수 없는 기록으로 남습니다.</p>
+</div>
+
+<!-- 5. 기록 확인 -->
+<h2><span class="num">5</span>기록 확인</h2>
+<div class="card big">
+  <p>물에서 나와 <strong>폰 앱을 열면 자동으로 올라갑니다.</strong>
+  보통 10초쯤 걸리고, 기록 탭에서 확인하실 수 있습니다.</p>
+  <p class="dim">폰 앱을 열기 전까지 워치에 "업로드 대기"로 남아 있는 게
+  정상입니다. 기록이 사라진 게 아닙니다.</p>
+</div>
+
+<!-- 6. 파도 개수 -->
+<h2><span class="num">6</span>파도 개수를 물어봅니다</h2>
+<div class="card">
+  <p>워치 기록을 처음 열면 <strong>"몇 개 타셨어요?"</strong>라고 묻습니다.
+  <span class="em">기억나는 대로</span> 답해 주시면 됩니다. 정확하지 않아도
+  괜찮고, "잘 모르겠어요"를 누르셔도 됩니다.</p>
+  <p class="dim">이게 저희에게 가장 중요한 데이터입니다 — 워치가 센 것과
+  실제로 타신 것의 차이를 알아야 감지를 고칠 수 있습니다. 특히
+  <strong>롱보드</strong> 타시는 분은 워치가 적게 셀 가능성이 높습니다.
+  그 차이를 알려주시는 게 이번 베타의 핵심입니다.</p>
+</div>
+
+<!-- 7. 문의 -->
+<h2><span class="num">7</span>이상하면 알려주세요</h2>
+<div class="card">
+  <p>참여하고 계신 오픈채팅방에 남겨주세요.
+  <strong>"언제, 어느 스팟"</strong>만 알려주시면 저희가 그 세션을 직접
+  들여다볼 수 있습니다.</p>
+  <p class="dim" style="margin-bottom:4px;">특히 이런 것들이 궁금합니다:</p>
+  <ul class="ask">
+    <li>파도를 탔는데 안 잡힌 경우 (몇 개쯤인지)</li>
+    <li>안 탔는데 잡힌 경우</li>
+    <li>배터리가 얼마나 줄었는지</li>
+    <li>물에서 화면이 보이는지 / 안 보이는지</li>
+  </ul>
+</div>
+
+<footer>베타 테스트에 참여해 주셔서 감사합니다 🌊<br>너울 — 서핑 예보와 기록</footer>
+
+</div>
+</body>
+</html>
